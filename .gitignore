@@ -1,0 +1,26 @@
+# WorkBuddy 会话目录（含私人工作笔记，绝不入库）
+.workbuddy/
+
+# 依赖与打包产物
+node_modules/
+dist/
+build/
+*.zip
+*.crx
+*.xpi
+
+# 本地临时脚本（下划线开头）
+_*.js
+_backup/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 可能误提交的个人配置与密钥
+.env
+.env.*
+*.local.json
+secrets.*

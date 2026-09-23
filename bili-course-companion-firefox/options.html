@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>网课随行助手 - 设置</title>
+  <style>
+    body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; padding: 24px; max-width: 560px; }
+    h2 { margin-top: 0; }
+    label { display: block; margin: 14px 0 4px; font-weight: 600; }
+    input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    button { margin-top: 16px; padding: 8px 16px; border: 0; background: #00a1d6; color: #fff; border-radius: 6px; cursor: pointer; }
+    #msg { margin-top: 12px; color: #0a0; }
+  </style>
+</head>
+<body>
+  <h2>B站网课随行助手 · 设置</h2>
+  <p>讲解后端使用 OpenAI 兼容接口，默认指向北邮网关 deepseek-v4-flash。配置仅保存在本机浏览器。</p>
+
+  <label>网关地址 (base_url)</label>
+  <input id="baseUrl" value="https://myai.bupt.edu.cn/llm-gw/v1" />
+
+  <label>API Key</label>
+  <input id="apiKey" type="password" placeholder="粘贴你自己的网关 Key" />
+
+  <label>模型名</label>
+  <input id="model" value="deepseek-v4-flash" />
+
+  <button id="save">保存</button>
+  <div id="msg"></div>
+
+  <script src="options.js"></script>
+</body>
+</html>

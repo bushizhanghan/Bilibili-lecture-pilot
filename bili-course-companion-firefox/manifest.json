@@ -1,0 +1,35 @@
+{
+  "manifest_version": 2,
+  "name": "Bilibili LecturePilot",
+  "version": "0.1.0",
+  "description": "跟随 B 站课程视频，逐句分析知识点，点击任意句调用 AI 细致讲解（Firefox 版）",
+  "permissions": [
+    "storage",
+    "*://*.bilibili.com/*",
+    "*://*.hdslb.com/*",
+    "https://myai.bupt.edu.cn/*"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://www.bilibili.com/video/*",
+        "*://m.bilibili.com/video/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "bili-companion@local"
+    }
+  }
+}
