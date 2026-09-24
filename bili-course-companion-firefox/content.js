@@ -44,6 +44,7 @@
   .bc-btn.on { background: #e6f7ff; color: #00a1d6; border-color: #00a1d6; font-weight: 600; }
   .bc-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
   .bc-bar { display: flex; gap: 5px; padding: 6px 10px; border-bottom: 1px solid #f0f1f2; align-items: center; flex-wrap: wrap; }
+  .bc-bar.hide { display: none; }
   .bc-bar input, .bc-bar select { font-size: 12px; padding: 4px 6px; border: 1px solid #e3e5e7; border-radius: 6px; }
   .bc-bar input { flex: 1; min-width: 110px; }
   .bc-transcript { flex: 1; overflow-y: auto; padding: 6px 0; min-height: 100px; }
@@ -90,6 +91,7 @@
   root.innerHTML = `
     <div class="bc-head">
       <div class="bc-head-title">LecturePilot</div>
+      <span class="bc-btn" id="bc-search-toggle" title="搜索栏 显隐">🔍</span>
       <span class="bc-btn" id="bc-settings-btn" title="设置">⚙</span>
       <span class="bc-btn" id="bc-outline-btn" title="整章梳理">梳理</span>
       <span class="bc-btn" id="bc-collapse-btn" title="收起/展开">⟩</span>
@@ -145,7 +147,7 @@
   const statusEl = $('bc-status'), transcriptEl = $('bc-transcript'), detailEl = $('bc-detail');
   const detailTitle = $('bc-detail-title'), detailSrc = $('bc-detail-src');
   const enrichedEl = $('bc-enriched'), enrichedText = $('bc-enriched-text'), detailText = $('bc-detail-text');
-  const selEl = $('bc-sel'), qInput = $('bc-q'), searchInput = $('bc-search');
+  const selEl = $('bc-sel'), qInput = $('bc-q'), searchInput = $('bc-search'), barEl = $('bc-bar');
   const styleSel = $('bc-style'), depthSel = $('bc-depth'), settingsEl = $('bc-settings');
 
   let sentences = [], activeIdx = -1, selectedText = '';
@@ -583,6 +585,7 @@
   $('bc-savenote-btn').addEventListener('click', addNote);
   $('bc-exportnote-btn').addEventListener('click', exportNotes);
   $('bc-exportsub-btn').addEventListener('click', exportSubtitle);
+  $('bc-search-toggle').addEventListener('click', () => { barEl.classList.toggle('hide'); });
   styleSel.addEventListener('change', async () => { style = styleSel.value; try { await store.set({ style }); } catch (e) { } });
   depthSel.addEventListener('change', async () => { depth = depthSel.value; try { await store.set({ depth }); } catch (e) { } });
 
