@@ -150,12 +150,30 @@ function buildMessages(userPrompt, history) {
   msgs.push({ role: 'user', content: userPrompt });
   return msgs;
 }
-async function callLLM(messages, s) {
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+// 北邮网关 deepseek-v4-flash 默认 max_tokens 虚标到 ~39 万，prompt + 默认上限超过上游 262144 限制会直接 500。
+// 这里显式夹到 65536；并对 5xx/网络错误做最多 3 次重试。
+async function callLLM(messages, s, tries = 3) {
   if (!s.apiKey) throw new Error('尚未配置 API Key：请点侧栏 ⚙（或扩展选项页）填入你自己的网关 Key');
-  const res = await fetch(endpoint(s), { method: 'POST', headers: headers(s), body: JSON.stringify({ model: s.model, messages, temperature: 0.7, stream: false }) });
-  const j = await res.json();
-  if (j.error) throw new Error((j.error.message) || JSON.stringify(j.error));
-  return (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '（未返回内容）';
+  let lastMsg = '';
+  for (let i = 0; i < tries; i++) {
+    try {
+      const res = await fetch(endpoint(s), { method: 'POST', headers: headers(s), body: JSON.stringify({ model: s.model, messages, temperature: 0.7, max_tokens: 65536, stream: false }) });
+      const j = await res.json().catch(() => ({}));
+      if (j.error) {
+        lastMsg = (j.error.message) || JSON.stringify(j.error);
+        if (res.status >= 500 && i < tries - 1) { await sleep(700 * (i + 1)); continue; }
+        throw new Error(lastMsg);
+      }
+      return (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '（未返回内容）';
+    } catch (e) {
+      const msg = (e && e.message) || String(e);
+      const transient = (e && e.name === 'TypeError') || msg.includes('InternalServerError') || msg.includes('Failed to fetch') || msg.includes('network');
+      if (i < tries - 1 && transient) { lastMsg = msg; await sleep(700 * (i + 1)); continue; }
+      throw e;
+    }
+  }
+  throw new Error(lastMsg || '网关请求失败');
 }
 
 // ---------- 提示词 ----------
@@ -294,9 +312,13 @@ if (ext && ext.runtime && ext.runtime.onConnect) {
           body: JSON.stringify({
             model: s.model,
             messages: buildMessages(answerPrompt(msg.enriched, msg.selectedText, s.style, s.depth), msg.history),
-            temperature: 0.7, stream: true
+            temperature: 0.7, max_tokens: 65536, stream: true
           })
         });
+        if (!res.ok) {
+          const ej = await res.json().catch(() => ({}));
+          throw new Error((ej.error && (ej.error.message || JSON.stringify(ej.error))) || ('网关返回 ' + res.status));
+        }
         if (!res.body) throw new Error('网关不支持流式');
         const reader = res.body.getReader();
         const dec = new TextDecoder('utf-8');
