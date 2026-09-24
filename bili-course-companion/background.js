@@ -229,6 +229,18 @@ function termsPrompt(text) {
     `要求：只输出一个 JSON 数组，例如 ["梯度下降","学习率","过拟合"]；不要任何解释文字；\n` +
     `术语要是这门课真正的专业概念，不要普通词汇；按在文中出现顺序排列。\n\n字幕：\n${body}`;
 }
+function quizUptoPrompt(text, uptoTime) {
+  const body = String(text || '').slice(0, 12000);
+  const t = Math.floor(uptoTime / 60) + ':' + String(Math.floor(uptoTime % 60)).padStart(2, '0');
+  return `你是网课助教。下面是一段网课从开头到当前播放位置（约 ${t}）的【全部字幕原文】。\n` +
+    `请基于这些字幕里出现的【所有知识点】出一套自测题，检验学习者是否掌握了到目前为止讲过的内容：\n` +
+    `要求：\n` +
+    `1）覆盖要广，尽量涵盖这段字幕里出现的各个主要知识点（建议 6-10 道，按重要性取舍）；\n` +
+    `2）题型可混合：概念辨析 / 简单计算或推导 / 判断正误 / 简答；\n` +
+    `3）每题后紧跟"答案与解析"，解析要结合本段字幕内容，不要泛泛而谈；\n` +
+    `4）用中文，可用 Markdown 组织（## 标题、- 列表、**加粗**）。\n` +
+    `只围绕这段字幕里的知识点出题，不要超纲、不要出字幕里没出现的内容。\n\n字幕原文：\n${body}` + OUTPUT_RULES;
+}
 
 function outlinePrompt(sentences) {
   const lines = sentences.map((s, i) => `${i + 1}. ${s.text}`).join('\n');
@@ -274,6 +286,10 @@ if (ext && ext.runtime && ext.runtime.onMessage) {
     }
     if (msg.type === 'quiz') {
       getSettings().then(s => callLLM(buildMessages(quizPrompt(msg.selectedText)), s))
+        .then(text => sendResponse({ text })).catch(fail); return true;
+    }
+    if (msg.type === 'quizUpto') {
+      getSettings().then(s => callLLM(buildMessages(quizUptoPrompt(msg.text, msg.uptoTime)), s))
         .then(text => sendResponse({ text })).catch(fail); return true;
     }
     if (msg.type === 'terms') {

@@ -111,6 +111,7 @@
           <span class="bc-btn primary" id="bc-ask-btn">提问</span>
           <span class="bc-btn" id="bc-enrich-btn" title="开启后先让 AI 把问题变清楚，再作答">丰富：关</span>
           <span class="bc-btn" id="bc-quiz-btn">自测题</span>
+          <span class="bc-btn" id="bc-quizupto-btn">到此自测</span>
           <span class="bc-btn" id="bc-mark-btn">标记不懂</span>
           <span class="bc-btn" id="bc-clear-btn">清空</span>
         </div>
@@ -485,6 +486,23 @@
     detailTitle.textContent = '自测题';
     detailText.innerHTML = renderMarkdown(r.text);
   }
+  async function runQuizUpto() {
+    if (!sentences.length) { statusEl.textContent = '字幕尚未加载'; return; }
+    const idx = activeIdx >= 0 ? activeIdx : sentences.length - 1;
+    const from = sentences[idx].from;
+    let text = sentences.slice(0, idx + 1).map(s => s.text).join('\n');
+    const cap = 12000;
+    let truncated = false;
+    if (text.length > cap) { text = text.slice(-cap); truncated = true; }
+    detailEl.style.display = 'block'; enrichedEl.style.display = 'none';
+    detailTitle.textContent = '正在出累计自测题…';
+    detailSrc.textContent = `范围：0:00 ~ ${fmtTime(from)}（截止当前播放句，共 ${idx + 1} 句）${truncated ? '；字幕过长已截取最近部分' : ''}`;
+    detailText.textContent = '（稍候）';
+    const r = await sendMsg({ type: 'quizUpto', text, uptoTime: from });
+    if (r.error) { detailTitle.textContent = '出错了'; detailText.textContent = r.error; return; }
+    detailTitle.textContent = `累计自测题（0:00 ~ ${fmtTime(from)}）`;
+    detailText.innerHTML = renderMarkdown(r.text);
+  }
   async function runOutline() {
     if (!sentences.length) { statusEl.textContent = '字幕尚未加载'; return; }
     detailEl.style.display = 'block'; enrichedEl.style.display = 'none';
@@ -567,6 +585,7 @@
     try { await store.set({ enrichOn }); } catch (e) { }
   });
   $('bc-quiz-btn').addEventListener('click', runQuiz);
+  $('bc-quizupto-btn').addEventListener('click', runQuizUpto);
   $('bc-mark-btn').addEventListener('click', addMark);
   $('bc-clear-btn').addEventListener('click', () => {
     selectedText = ''; qInput.value = '';
