@@ -42,7 +42,7 @@
   .bc-btn:hover { background: #eef0f1; }
   .bc-btn.primary { background: #00a1d6; color: #fff; border-color: #00a1d6; }
   .bc-btn.on { background: #e6f7ff; color: #00a1d6; border-color: #00a1d6; font-weight: 600; }
-  .bc-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .bc-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
   .bc-bar { display: flex; gap: 5px; padding: 6px 10px; border-bottom: 1px solid #f0f1f2; align-items: center; flex-wrap: wrap; }
   .bc-bar input, .bc-bar select { font-size: 12px; padding: 4px 6px; border: 1px solid #e3e5e7; border-radius: 6px; }
   .bc-bar input { flex: 1; min-width: 110px; }
@@ -80,7 +80,7 @@
   .bc-item .bc-meta { color: #999; font-size: 11px; display: block; margin-bottom: 2px; }
   .bc-status { font-size: 12px; color: #888; padding: 6px 10px; }
   .bc-status.error { color: #d23; }
-  .bc-settings { padding: 10px; border-top: 1px solid #e3e5e7; display: none; flex-direction: column; gap: 6px; background: #f6f7f8; }
+  .bc-settings { padding: 14px; display: none; flex-direction: column; gap: 8px; background: #f6f7f8; position: absolute; inset: 0; z-index: 20; overflow-y: auto; box-shadow: -2px 0 10px rgba(0,0,0,.12); }
   .bc-settings.show { display: flex; }
   .bc-settings label { font-size: 12px; color: #555; }
   .bc-settings input { padding: 6px; border: 1px solid #e3e5e7; border-radius: 6px; font-size: 13px; }
